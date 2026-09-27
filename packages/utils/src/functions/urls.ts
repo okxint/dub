@@ -234,11 +234,15 @@ export function buildUrl(
 export const getFileExtension = (url: string): string | null => {
   try {
     const pathname = new URL(url).pathname;
-    const extension = pathname.split(".").pop();
+    const filename = pathname.split("/").pop() ?? "";
+    if (!filename.includes(".")) return null;
+    const extension = filename.split(".").pop();
     return extension ? extension.toUpperCase() : null;
   } catch {
     // If URL parsing fails, try to extract from the string directly
-    const extension = url.split(".").pop()?.split("?")[0];
+    const filename = url.split("/").pop()?.split("?")[0] ?? "";
+    if (!filename.includes(".")) return null;
+    const extension = filename.split(".").pop();
     return extension ? extension.toUpperCase() : null;
   }
 };
