@@ -65,7 +65,7 @@ export async function bulkUpdateLinks(
           description: description ? truncate(description, 240) : description,
           image:
             proxy && image && isNotHostedImage(image)
-              ? `${R2_URL}/images/${linkIds[0]}_${imageUrlNonce}`
+              ? `${R2_URL}/images/${linkId}_${imageUrlNonce}`
               : image,
           expiresAt: expiresAt ? new Date(expiresAt) : expiresAt,
           geo: geo === null ? Prisma.DbNull : geo,
@@ -133,18 +133,22 @@ export async function bulkUpdateLinks(
           ...previousPartnersForLinks,
           ...updatedLinks,
         ]),
-      // if proxy is true and image is not stored in R2, upload image to R2
+      // if proxy is true and image is not stored in R2, upload image to R2 for each link
       proxy &&
         image &&
         isNotHostedImage(image) &&
-        storage.upload({
-          key: `images/${linkIds[0]}_${imageUrlNonce}`,
-          body: image,
-          opts: {
-            width: 1200,
-            height: 630,
-          },
-        }),
+        Promise.all(
+          linkIds.map((linkId) =>
+            storage.upload({
+              key: `images/${linkId}_${imageUrlNonce}`,
+              body: image,
+              opts: {
+                width: 1200,
+                height: 630,
+              },
+            }),
+          ),
+        ),
     ]),
   );
 
