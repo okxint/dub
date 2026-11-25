@@ -490,8 +490,8 @@ const _trackSale = async ({
     });
   }
 
-  // Skip if amount is 0 or less
-  if (amount <= 0) {
+  // Skip if amount is negative
+  if (amount < 0) {
     return {
       eventName,
       customer: null,
